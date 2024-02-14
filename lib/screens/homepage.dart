@@ -116,115 +116,124 @@ class _MyAppState extends State<MyApp> {
         body: ModalProgressHUD(
           inAsyncCall: showloader,
           child: SingleChildScrollView(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 334,
-                    width: 318,
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-                      decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 9, 0, 31),
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                              width: 9,
-                              color: const Color.fromARGB(255, 30, 30, 50))),
-                      child: FittedBox(
-                        fit: BoxFit.contain,
-                        child: image != null
-                            ? Image.file(image!)
-                            // ? Text(image!.path)
-                            : const Center(
-                                child: Text(
-                                "Select Image",
-                                style: TextStyle(
-                                  color: Color.fromARGB(86, 145, 110, 232),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              // mainAxisSize: MainAxisSize.min,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 334,
+                  width: 318,
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                    decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 9, 0, 31),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                            width: 9,
+                            color: const Color.fromARGB(255, 30, 30, 50))),
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: image != null
+                          ? Image.file(image!)
+                          // ? Text(image!.path)
+                          : const Center(
+                              child: Text(
+                              "Select Image",
+                              style: TextStyle(
+                                color: Color.fromARGB(86, 145, 110, 232),
+                              ),
+                            )),
+                    ),
+                  ),
+                ),
+                Container(
+                  // height: 300,
+                  margin: const EdgeInsets.all(35),
+                  // clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 30, 30, 50),
+                      borderRadius: BorderRadius.circular(24)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ConstrainedBox(
+                      constraints:
+                          const BoxConstraints(maxHeight: 300, minHeight: 200),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: numbers.length,
+                        padding: const EdgeInsets.all(10),
+                        itemBuilder: (BuildContext context, int index) {
+                          if (_isEditing && _editingIndex == index) {
+                            return ListTile(
+                              title: TextField(
+                                controller: _nameController,
+                                decoration:
+                                    const InputDecoration(hintText: 'Name'),
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Color.fromARGB(149, 255, 255, 255)),
+                              ),
+                              subtitle: TextField(
+                                controller: _phoneNumberController,
+                                decoration: const InputDecoration(
+                                    hintText: 'Phone Number'),
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Color.fromARGB(255, 255, 255, 255)),
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.check),
+                                onPressed: () {
+                                  _saveChanges(index);
+                                },
+                              ),
+                            );
+                          } else {
+                            return ListTile(
+                              title: Text(
+                                name[index],
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Color.fromARGB(143, 255, 255, 255)),
+                              ),
+                              subtitle: Text(
+                                numbers[index],
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Color.fromARGB(255, 255, 255, 255)),
+                              ),
+                              trailing: SizedBox(
+                                width: 70,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () {
+                                          _startEditing(index);
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: IconButton(
+                                        icon: const Icon(Icons.save),
+                                        onPressed: () {
+                                          savecontact(index);
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              )),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.all(35),
-                    // clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 30, 30, 50),
-                        borderRadius: BorderRadius.circular(24)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                            maxHeight: 300, minHeight: 200),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: numbers.length,
-                          padding: const EdgeInsets.all(10),
-                          itemBuilder: (BuildContext context, int index) {
-                            if (_isEditing && _editingIndex == index) {
-                              return ListTile(
-                                title: TextField(
-                                  controller: _nameController,
-                                  decoration:
-                                      const InputDecoration(hintText: 'Name'),
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      color:
-                                          Color.fromARGB(149, 255, 255, 255)),
-                                ),
-                                subtitle: TextField(
-                                  controller: _phoneNumberController,
-                                  decoration: const InputDecoration(
-                                      hintText: 'Phone Number'),
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      color:
-                                          Color.fromARGB(255, 255, 255, 255)),
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.check),
-                                  onPressed: () {
-                                    _saveChanges(index);
-                                  },
-                                ),
-                              );
-                            } else {
-                              return Row(
-                                children: [
-                                  ListTile(
-                                    title: Text(
-                                      name[index],
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Color.fromARGB(
-                                              143, 255, 255, 255)),
-                                    ),
-                                    subtitle: Text(
-                                      numbers[index],
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          color: Color.fromARGB(
-                                              255, 255, 255, 255)),
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () {
-                                        _startEditing(index);
-                                      },
-                                    ),
-                                  ),
-                                  
-                                ],
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
+                )
+              ],
             ),
           ),
         ),
@@ -265,7 +274,6 @@ class _MyAppState extends State<MyApp> {
 
   savecontact(int index) async {
     Contact contact = Contact();
-    // print("--${_controller.text}");
     contact.givenName = name[index];
     contact.phones = [Item(label: "mobile", value: numbers[index])];
     ContactsService.addContact(contact);
