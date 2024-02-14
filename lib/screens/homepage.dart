@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
@@ -46,13 +47,48 @@ class _MyAppState extends State<MyApp> {
     });
     try {
       final image = await ImagePicker()
-          .pickImage(source: ImageSource.camera, imageQuality: 9);
-      if (image == null) return;
+          .pickImage(source: ImageSource.camera, imageQuality: 10);
+      if (image == null) {
+        setState(() {
+          showloader = false;
+        });
+        return;
+      }
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+        compressQuality: 9,
+        compressFormat: ImageCompressFormat.jpg,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'Cropper',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+          IOSUiSettings(
+            title: 'Cropper',
+          ),
+          WebUiSettings(
+            context: context,
+          ),
+        ],
+      );
+
+      if (croppedFile == null) return null;
+
       // final imageTemp = File(image.path);
-      final imageTemp = File(image.path);
+      final imageTemp = File(croppedFile.path);
 
       final request = http.MultipartRequest("POST",
-          Uri.parse("https://60fb-103-89-235-250.ngrok-free.app/upload"));
+          Uri.parse("https://7f33-157-45-196-65.ngrok-free.app/upload"));
 
       final headers = {"Content-type": "multipart/form-data"};
       request.files.add(http.MultipartFile(
@@ -112,7 +148,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        backgroundColor: const Color.fromARGB(255, 13, 15, 29),
+        backgroundColor: const Color(0xFF161A30),
         body: ModalProgressHUD(
           inAsyncCall: showloader,
           child: SingleChildScrollView(
@@ -127,11 +163,10 @@ class _MyAppState extends State<MyApp> {
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),
                     decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 9, 0, 31),
+                        color: const Color.fromARGB(255, 0, 0, 0),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                            width: 9,
-                            color: const Color.fromARGB(255, 30, 30, 50))),
+                            width: 9, color: const Color(0xFF31304D))),
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: image != null
@@ -152,7 +187,7 @@ class _MyAppState extends State<MyApp> {
                   margin: const EdgeInsets.all(35),
                   // clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 30, 30, 50),
+                      color: const Color(0xFF31304D),
                       borderRadius: BorderRadius.circular(24)),
                   child: Padding(
                     padding: const EdgeInsets.all(5.0),
@@ -183,7 +218,10 @@ class _MyAppState extends State<MyApp> {
                                     color: Color.fromARGB(255, 255, 255, 255)),
                               ),
                               trailing: IconButton(
-                                icon: const Icon(Icons.check),
+                                icon: const Icon(
+                                  Icons.check,
+                                  color: Color(0xFFF0ECE5),
+                                ),
                                 onPressed: () {
                                   _saveChanges(index);
                                 },
@@ -209,7 +247,10 @@ class _MyAppState extends State<MyApp> {
                                   children: [
                                     Expanded(
                                       child: IconButton(
-                                        icon: const Icon(Icons.edit),
+                                        icon: const Icon(
+                                          Icons.edit,
+                                          color: Color(0xFFF0ECE5),
+                                        ),
                                         onPressed: () {
                                           _startEditing(index);
                                         },
@@ -217,7 +258,10 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                     Expanded(
                                       child: IconButton(
-                                        icon: const Icon(Icons.save),
+                                        icon: const Icon(
+                                          Icons.save,
+                                          color: Color(0xFFF0ECE5),
+                                        ),
                                         onPressed: () {
                                           savecontact(index);
                                         },
