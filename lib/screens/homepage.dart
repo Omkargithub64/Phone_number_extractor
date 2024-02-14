@@ -3,6 +3,7 @@
 import 'dart:convert';
 // import 'dart:html';
 import 'dart:io';
+// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,7 +57,7 @@ class _MyAppState extends State<MyApp> {
       }
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: image.path,
-        aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+        // aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
         compressQuality: 9,
         compressFormat: ImageCompressFormat.jpg,
         aspectRatioPresets: [
@@ -69,7 +70,7 @@ class _MyAppState extends State<MyApp> {
         uiSettings: [
           AndroidUiSettings(
               toolbarTitle: 'Cropper',
-              toolbarColor: Colors.deepOrange,
+              toolbarColor: const Color(0xFF31304D),
               toolbarWidgetColor: Colors.white,
               initAspectRatio: CropAspectRatioPreset.original,
               lockAspectRatio: false),
@@ -82,7 +83,12 @@ class _MyAppState extends State<MyApp> {
         ],
       );
 
-      if (croppedFile == null) return null;
+      if (croppedFile == null) {
+        setState(() {
+          showloader = false;
+        });
+        return null;
+      }
 
       // final imageTemp = File(image.path);
       final imageTemp = File(croppedFile.path);
@@ -258,14 +264,17 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                     Expanded(
                                       child: IconButton(
-                                        icon: const Icon(
-                                          Icons.save,
-                                          color: Color(0xFFF0ECE5),
-                                        ),
-                                        onPressed: () {
-                                          savecontact(index);
-                                        },
-                                      ),
+                                          icon: const Icon(
+                                            Icons.save,
+                                            color: Color(0xFFF0ECE5),
+                                          ),
+                                          onPressed: () {
+                                            savecontact(index);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              content: Text("Contact Saved"),
+                                            ));
+                                          }),
                                     ),
                                   ],
                                 ),
