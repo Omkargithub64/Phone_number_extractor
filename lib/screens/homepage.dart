@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       final imageTemp = File(image.path);
 
       final request = http.MultipartRequest("POST",
-          Uri.parse("https://0a49-103-89-235-250.ngrok-free.app/upload"));
+          Uri.parse("https://60fb-103-89-235-250.ngrok-free.app/upload"));
 
       final headers = {"Content-type": "multipart/form-data"};
       request.files.add(http.MultipartFile(
@@ -82,6 +82,12 @@ class _MyAppState extends State<MyApp> {
       print('Failed to pick image: $e');
     }
   }
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+
+  bool _isEditing = false;
+  late int _editingIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -156,69 +162,62 @@ class _MyAppState extends State<MyApp> {
                           itemCount: numbers.length,
                           padding: const EdgeInsets.all(10),
                           itemBuilder: (BuildContext context, int index) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 15),
-                              child: Row(
-                                // crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                            if (_isEditing && _editingIndex == index) {
+                              return ListTile(
+                                title: TextField(
+                                  controller: _nameController,
+                                  decoration:
+                                      const InputDecoration(hintText: 'Name'),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      color:
+                                          Color.fromARGB(149, 255, 255, 255)),
+                                ),
+                                subtitle: TextField(
+                                  controller: _phoneNumberController,
+                                  decoration: const InputDecoration(
+                                      hintText: 'Phone Number'),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      color:
+                                          Color.fromARGB(255, 255, 255, 255)),
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.check),
+                                  onPressed: () {
+                                    _saveChanges(index);
+                                  },
+                                ),
+                              );
+                            } else {
+                              return Row(
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 3),
-                                          width: 170,
-                                          child: TextFormField(
-                                            initialValue: name[index],
-                                            // keyboardType: TextInputType.number,
-                                            // controller: _controller,
-                                            style: const TextStyle(
-                                              color: Color(0xFF9174DB),
-                                              fontSize: 18,
-                                            ),
-                                          )
-                                          // Text(
-                                          //   name[index] + " :",
-                                          //   style: const TextStyle(
-                                          //     fontSize: 18,
-                                          //     color: Color(0xFF9174DB),
-                                          //   ),
-                                          // ),
-                                          ),
-                                      Text(
-                                        numbers[index],
-                                        style: const TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w800),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 5),
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                const Color(0xFFF0ECE5)),
-                                        shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                          RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(18.0),
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: (() => savecontact(index)),
-                                      child: const Text("Save"),
+                                  ListTile(
+                                    title: Text(
+                                      name[index],
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Color.fromARGB(
+                                              143, 255, 255, 255)),
+                                    ),
+                                    subtitle: Text(
+                                      numbers[index],
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          color: Color.fromARGB(
+                                              255, 255, 255, 255)),
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        _startEditing(index);
+                                      },
                                     ),
                                   ),
+                                  
                                 ],
-                              ),
-                            );
+                              );
+                            }
                           },
                         ),
                       ),
@@ -231,6 +230,30 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  void _startEditing(int index) {
+    setState(() {
+      _isEditing = true;
+      _editingIndex = index;
+      _nameController.text = name[index];
+      _phoneNumberController.text = numbers[index];
+    });
+  }
+
+  void _saveChanges(int index) {
+    final newName = _nameController.text;
+    final newPhoneNumber = _phoneNumberController.text;
+
+    if (newName.isNotEmpty && newPhoneNumber.isNotEmpty) {
+      setState(() {
+        numbers[index] = newPhoneNumber;
+        name[index] = newName;
+
+        _isEditing = false;
+      });
+      print(name[index]);
+    }
   }
 
   void getContactPermission() async {
