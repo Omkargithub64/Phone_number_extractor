@@ -240,13 +240,17 @@ class _MyAppState extends State<MyApp> {
                       child: image != null
                           ? Image.file(image!)
                           // ? Text(image!.path)
-                          : const Center(
-                              child: Text(
-                              "Select Image",
-                              style: TextStyle(
-                                color: Color.fromARGB(86, 145, 110, 232),
-                              ),
-                            )),
+                          : const SizedBox(
+                              width: 100,
+                              child: Center(
+                                  child: Text(
+                                "Image Preview",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Color.fromARGB(86, 145, 110, 232),
+                                ),
+                              )),
+                            ),
                     ),
                   ),
                 ),
