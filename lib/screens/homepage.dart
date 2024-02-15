@@ -42,13 +42,14 @@ class _MyAppState extends State<MyApp> {
   List numbers = [];
   File? image;
 
-  Future pickImage() async {
+  Future pickImage(bool isgall) async {
     setState(() {
       showloader = true;
     });
     try {
-      final image = await ImagePicker()
-          .pickImage(source: ImageSource.camera, imageQuality: 10);
+      final source = isgall ? ImageSource.gallery : ImageSource.camera;
+      final image =
+          await ImagePicker().pickImage(source: source, imageQuality: 20);
       if (image == null) {
         setState(() {
           showloader = false;
@@ -58,7 +59,7 @@ class _MyAppState extends State<MyApp> {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: image.path,
         // aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-        compressQuality: 9,
+        compressQuality: 20,
         compressFormat: ImageCompressFormat.jpg,
         aspectRatioPresets: [
           CropAspectRatioPreset.square,
@@ -69,13 +70,17 @@ class _MyAppState extends State<MyApp> {
         ],
         uiSettings: [
           AndroidUiSettings(
-              toolbarTitle: 'Cropper',
-              toolbarColor: const Color(0xFF31304D),
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false),
+            toolbarTitle: 'Select Area',
+            toolbarColor: const Color(0xFF31304D),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            showCropGrid: false,
+            cropFrameColor: Colors.deepPurple,
+            hideBottomControls: true,
+          ),
           IOSUiSettings(
-            title: 'Cropper',
+            title: 'Select Area',
           ),
           WebUiSettings(
             context: context,
@@ -94,7 +99,7 @@ class _MyAppState extends State<MyApp> {
       final imageTemp = File(croppedFile.path);
 
       final request = http.MultipartRequest("POST",
-          Uri.parse("https://7f33-157-45-196-65.ngrok-free.app/upload"));
+          Uri.parse("https://ad7f-157-45-209-228.ngrok-free.app/upload"));
 
       final headers = {"Content-type": "multipart/form-data"};
       request.files.add(http.MultipartFile(
@@ -136,24 +141,81 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        resizeToAvoidBottomInset: true,
-        floatingActionButton: SizedBox(
-          width: 80,
-          height: 80,
-          child: RawMaterialButton(
-            elevation: 50,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            fillColor: const Color(0xFF31304D),
-            onPressed: pickImage,
-            child: const Icon(
-              Icons.camera,
-              size: 40,
-              color: Colors.white,
-            ),
+        bottomNavigationBar: BottomAppBar(
+          elevation: 0,
+          height: 150,
+          color: const Color(0xFF161A30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: IconButton(
+                  icon: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF31304D),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    width: 100,
+                    height: 100,
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Image.asset(
+                        "assets/icons/scan.png",
+                        color: Colors.white,
+                        width: 30,
+                        height: 30,
+                      ),
+                    ),
+                  ),
+                  onPressed: () => {
+                    pickImage(false),
+                  },
+                ),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: IconButton(
+                  icon: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF31304D),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    width: 100,
+                    height: 100,
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Image.asset(
+                        "assets/icons/gallery.png",
+                        color: Colors.white,
+                        width: 30,
+                        height: 30,
+                      ),
+                    ),
+                  ),
+                  onPressed: () => {
+                    pickImage(true),
+                  },
+                ),
+              ),
+            ],
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF31304D),
+          title: const Text("Phone Numbers"),
+          // forceMaterialTransparency: true,
+          foregroundColor: Colors.white,
+        ),
+        resizeToAvoidBottomInset: true,
+        // floatingActionButton:
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.miniCenterFloat,
         backgroundColor: const Color(0xFF161A30),
         body: ModalProgressHUD(
           inAsyncCall: showloader,
@@ -203,10 +265,11 @@ class _MyAppState extends State<MyApp> {
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: numbers.length,
-                        padding: const EdgeInsets.all(10),
+                        // padding: const EdgeInsets.all(10),
                         itemBuilder: (BuildContext context, int index) {
                           if (_isEditing && _editingIndex == index) {
                             return ListTile(
+                              titleAlignment: ListTileTitleAlignment.top,
                               title: TextField(
                                 controller: _nameController,
                                 decoration:
@@ -224,9 +287,20 @@ class _MyAppState extends State<MyApp> {
                                     color: Color.fromARGB(255, 255, 255, 255)),
                               ),
                               trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.check,
-                                  color: Color(0xFFF0ECE5),
+                                icon: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Color.fromARGB(255, 255, 255, 255),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(6.0),
+                                    child: Image.asset(
+                                      'assets/icons/check.png',
+                                      color: const Color(0xFF31304D),
+                                      width: 15,
+                                    ),
+                                  ),
                                 ),
                                 onPressed: () {
                                   _saveChanges(index);
@@ -235,6 +309,7 @@ class _MyAppState extends State<MyApp> {
                             );
                           } else {
                             return ListTile(
+                              // titleAlignment: ListTileTitleAlignment.center,
                               title: Text(
                                 name[index],
                                 style: const TextStyle(
@@ -248,14 +323,26 @@ class _MyAppState extends State<MyApp> {
                                     color: Color.fromARGB(255, 255, 255, 255)),
                               ),
                               trailing: SizedBox(
-                                width: 70,
+                                width: 90,
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: IconButton(
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          color: Color(0xFFF0ECE5),
+                                        icon: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Color.fromARGB(
+                                                255, 255, 255, 255),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(3.0),
+                                            child: Image.asset(
+                                              'assets/icons/edit.png',
+                                              color: const Color(0xFF31304D),
+                                              width: 40,
+                                            ),
+                                          ),
                                         ),
                                         onPressed: () {
                                           _startEditing(index);
@@ -264,9 +351,22 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                     Expanded(
                                       child: IconButton(
-                                          icon: const Icon(
-                                            Icons.save,
-                                            color: Color(0xFFF0ECE5),
+                                          icon: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 255, 255, 255),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(6.0),
+                                              child: Image.asset(
+                                                'assets/icons/add.png',
+                                                color: const Color(0xFF31304D),
+                                                width: 40,
+                                              ),
+                                            ),
                                           ),
                                           onPressed: () {
                                             savecontact(index);
